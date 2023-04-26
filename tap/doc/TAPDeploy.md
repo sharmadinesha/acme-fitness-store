@@ -7,7 +7,7 @@ be split across multiple cluster profiles (`build, view, and run`).
 
 ## Prerequisites
 
-These instructions assume that you have a TAP 1.4.x or greater `full` profile clusterup and running with the following packages installed and [kubectl](https://kubernetes.io/docs/tasks/tools/) and the Tanzu CLI installed and configured to access your TAP cluster:
+These instructions assume that you have a TAP 1.5.x or greater `full` profile clusterup and running with the following packages installed and [kubectl](https://kubernetes.io/docs/tasks/tools/) and the Tanzu CLI installed and configured to access your TAP cluster:
 
 * YTT
 * Tanzu TAP GUI
@@ -131,29 +131,25 @@ For example:
 ytt -f redis.yaml -v workloadNamespace=workloads -v redisPassword=fitness | kubectl apply -f-
 ```
 
-### Workload Build And Deployment
-
-To build the application services, execute the following command to apply the workload resources to your cluster while replacing these placeholders: Modify the `<workloadNamespace>` placeholder with the namespace where the application will be deployed, and the <appSSOIssuerURI> placeholder for the URL of the AppSSO authorization server that you deployed in the `AppSSO Deployment` step; you will use the Issuer URI that you saved off in that step.
-
-- **<workloadNamespace>** – Namespace where the application will be deployed
-- **<appSSOIssuerURI>** – The URL of the AppSSO authorization server that you deployed in the `AppSSO Deployment` step; you will use the Issuer URI that you saved off in that step
-- **<appDomainName>** – The application’s DNS domain (the domain name you chose at the beginning of these install steps).
-- **<sourceRepo>** – The Git repository of the Acme Fitness source.  This will likely be the same repository that you cloned at the beginning of these install steps.
-- **<sourceRepoBranch>** – The Git repository branch. 
-
-```
-ytt -f workloads.yaml -v workloadNamespace=<workloadNamespace> -v appSSOIssuerURI=<appSSOIssuerURL> -v appDomainName=<appDomainName> -v sourceRepo=<sourceRepo> -sourceRepoBranch=<sourceRepoBranch> | kubectl apply -f-
-```
-
-For example:
-
-```
-ytt -f workloads.yaml -v workloadNamespace=workloads -v appSSOIssuerURI=https://appsso-acme-fitness.workloads.perfect300rock.com  -v appDomainName=perfect300rock.com -v sourceRepo=https://github.com/gm2552-commercial/acme-fitness-store -v sourceRepoBranch=Azure  | kubectl apply -f-
-```
-
 ### Spring Cloud Gateway Setup
 
-TBC
+First, install the repository that contains the Spring Cloud Gateway package by running the following command:
+
+```
+tanzu package repository add scg-package-repository --namespace tap-install --url registry.tanzu.vmware.com/spring-cloud-gateway-for-kubernetes/scg-package-repository:2.0.0 
+```
+
+Get the version ot the package by running the following command:
+
+```
+tanzu package available list -n tap-install | grep spring-cloud-gateway
+```
+
+Then, install the Spring Cloud Gateway package by running the following command:
+
+```
+tanzu package install spring-cloud-gateway --namespace tap-install --package-name spring-cloud-gateway.tanzu.vmware.com --version 2.0.0
+```
 
 
 ### Spring Cloud Gateway Deployment
@@ -175,6 +171,27 @@ For example:
 ytt -f scgInstance.yaml -v workloadNamespace=workloads | kubectl apply -f-
 
 ytt -f scgRoutes.yaml -v workloadNamespace=workloads | kubectl apply -f-
+```
+
+
+### Workload Build And Deployment
+
+To build the application services, execute the following command to apply the workload resources to your cluster while replacing these placeholders: Modify the `<workloadNamespace>` placeholder with the namespace where the application will be deployed, and the <appSSOIssuerURI> placeholder for the URL of the AppSSO authorization server that you deployed in the `AppSSO Deployment` step; you will use the Issuer URI that you saved off in that step.
+
+- **<workloadNamespace>** – Namespace where the application will be deployed
+- **<appSSOIssuerURI>** – The URL of the AppSSO authorization server that you deployed in the `AppSSO Deployment` step; you will use the Issuer URI that you saved off in that step
+- **<appDomainName>** – The application’s DNS domain (the domain name you chose at the beginning of these install steps).
+- **<sourceRepo>** – The Git repository of the Acme Fitness source.  This will likely be the same repository that you cloned at the beginning of these install steps.
+- **<sourceRepoBranch>** – The Git repository branch. 
+
+```
+ytt -f workloads.yaml -v workloadNamespace=<workloadNamespace> -v appSSOIssuerURI=<appSSOIssuerURL> -v appDomainName=<appDomainName> -v sourceRepo=<sourceRepo> -sourceRepoBranch=<sourceRepoBranch> | kubectl apply -f-
+```
+
+For example:
+
+```
+ytt -f workloads.yaml -v workloadNamespace=workloads -v appSSOIssuerURI=https://appsso-acme-fitness.workloads.perfect300rock.com  -v appDomainName=perfect300rock.com -v sourceRepo=https://github.com/gm2552-commercial/acme-fitness-store -v sourceRepoBranch=Azure  | kubectl apply -f-
 ```
 
 ### Ingress Deployment
