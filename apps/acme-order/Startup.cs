@@ -69,6 +69,8 @@ namespace acme_order
             var connectionString = $"Host={host};Port={port};Database={database};Username={username};Password={password}";
             logger.LogInformation("PostgreSQL connection string: {ConnectionString}", connectionString);
 
+            Configuration["PostgresConnectionString"] = connectionString;
+
             services.AddDbContext<OrderContext, PostgresOrderContext>(options => options.UseNpgsql(connectionString), ServiceLifetime.Singleton);
 
             services.AddSingleton<OrderService>();
