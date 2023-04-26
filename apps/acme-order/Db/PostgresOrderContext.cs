@@ -7,14 +7,16 @@ namespace acme_order.Db
 {
     public class PostgresOrderContext : OrderContext
     {
+        private readonly IConfiguration _configuration;
         public PostgresOrderContext(IConfiguration configuration)
             : base(configuration)
         {
+            _configuration = configuration;
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseNpgsql(Configuration.GetConnectionString("PostgresConnectionString"));
+            optionsBuilder.UseNpgsql(_configuration.GetConnectionString("PostgresConnectionString"));
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
