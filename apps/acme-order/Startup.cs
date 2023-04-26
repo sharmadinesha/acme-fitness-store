@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using System.IO;
+using Npgsql.EntityFrameworkCore.PostgreSQL;
 
 namespace acme_order
 {
