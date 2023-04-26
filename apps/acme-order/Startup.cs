@@ -53,19 +53,11 @@ namespace acme_order
             //        break;
             //}
 
-            logger.LogInformation("Reading PostgreSQL connection values");
-
             var host = ReadFileContent("/bindings/db/host");
             var port = ReadFileContent("/bindings/db/port");
             var database = ReadFileContent("/bindings/db/database");
             var username = ReadFileContent("/bindings/db/username");
             var password = ReadFileContent("/bindings/db/password");
-
-            logger.LogInformation("Host: {Host}", host);
-            logger.LogInformation("Port: {Port}", port);
-            logger.LogInformation("Database: {Database}", database);
-            logger.LogInformation("Username: {Username}", username);
-            logger.LogInformation("Password: {Password}", password == null ? "null" : "******");            
 
             if (string.IsNullOrWhiteSpace(host) || string.IsNullOrWhiteSpace(port) ||
                 string.IsNullOrWhiteSpace(database) || string.IsNullOrWhiteSpace(username) ||
@@ -76,7 +68,6 @@ namespace acme_order
 
             var connectionString = $"Host={host};Port={port};Database={database};Username={username};Password={password}";
             logger.LogInformation("PostgreSQL connection string: {ConnectionString}", connectionString);
-
 
             services.AddDbContext<OrderContext, PostgresOrderContext>(options => options.UseNpgsql(connectionString), ServiceLifetime.Singleton);
 

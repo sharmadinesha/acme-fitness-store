@@ -14,7 +14,7 @@ namespace acme_order.Db
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseNpgsql(Configuration.GetConnectionString("OrderContext"));
+            optionsBuilder.UseNpgsql(Configuration.GetConnectionString("PostgresConnectionString"));
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
