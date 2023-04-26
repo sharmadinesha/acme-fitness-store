@@ -52,6 +52,13 @@ namespace acme_order
             var username = ReadFileContent("/bindings/db/username");
             var password = ReadFileContent("/bindings/db/password");
 
+            if (string.IsNullOrWhiteSpace(host) || string.IsNullOrWhiteSpace(port) ||
+                string.IsNullOrWhiteSpace(database) || string.IsNullOrWhiteSpace(username) ||
+                string.IsNullOrWhiteSpace(password))
+            {
+                throw new ArgumentException("One or more PostgreSQL connection values are missing or invalid.");
+            }
+
             var connectionString = $"Host={host};Port={port};Database={database};Username={username};Password={password}";
 
             services.AddDbContext<OrderContext, PostgresOrderContext>(options => options.UseNpgsql(connectionString), ServiceLifetime.Singleton);
@@ -81,10 +88,12 @@ namespace acme_order
         {
             if (File.Exists(filePath))
             {
-                return File.ReadAllText(filePath);
+                var content = File.ReadAllText(filePath);
+                return string.IsNullOrWhiteSpace(content) ? null : content;
             }
 
             return null;
         }
+
     }
 }
