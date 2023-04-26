@@ -15,17 +15,13 @@ using System.IO;
 using Microsoft.EntityFrameworkCore;
 using Npgsql.EntityFrameworkCore.PostgreSQL;
 
-
 namespace acme_order
 {
     public class Startup
     {
-        private readonly ILogger<Startup> _logger;
-
-        public Startup(IConfiguration configuration, ILogger<Startup> logger)
+        public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
-            _logger = logger;
         }
 
         public IConfiguration Configuration { get; }
@@ -33,6 +29,13 @@ namespace acme_order
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+
+            // Obtén una instancia de ILoggerFactory
+            var loggerFactory = services.BuildServiceProvider().GetRequiredService<ILoggerFactory>();
+
+            // Crea un ILogger para la clase Startup
+            var logger = loggerFactory.CreateLogger<Startup>();
+            
             services.Configure<AcmeServiceSettings>(
                 Configuration.GetSection(nameof(AcmeServiceSettings)));
 
@@ -50,7 +53,7 @@ namespace acme_order
             //        break;
             //}
 
-            _logger.LogInformation("Reading PostgreSQL connection values");
+            logger.LogInformation("Reading PostgreSQL connection values");
 
             var host = ReadFileContent("/bindings/db/host");
             var port = ReadFileContent("/bindings/db/port");
@@ -58,11 +61,11 @@ namespace acme_order
             var username = ReadFileContent("/bindings/db/username");
             var password = ReadFileContent("/bindings/db/password");
 
-            _logger.LogInformation("Host: {Host}", host);
-            _logger.LogInformation("Port: {Port}", port);
-            _logger.LogInformation("Database: {Database}", database);
-            _logger.LogInformation("Username: {Username}", username);
-            _logger.LogInformation("Password: {Password}", password == null ? "null" : "******");            
+            logger.LogInformation("Host: {Host}", host);
+            logger.LogInformation("Port: {Port}", port);
+            logger.LogInformation("Database: {Database}", database);
+            logger.LogInformation("Username: {Username}", username);
+            logger.LogInformation("Password: {Password}", password == null ? "null" : "******");            
 
             if (string.IsNullOrWhiteSpace(host) || string.IsNullOrWhiteSpace(port) ||
                 string.IsNullOrWhiteSpace(database) || string.IsNullOrWhiteSpace(username) ||
@@ -72,7 +75,7 @@ namespace acme_order
             }
 
             var connectionString = $"Host={host};Port={port};Database={database};Username={username};Password={password}";
-            _logger.LogInformation("PostgreSQL connection string: {ConnectionString}", connectionString);
+            logger.LogInformation("PostgreSQL connection string: {ConnectionString}", connectionString);
 
 
             services.AddDbContext<OrderContext, PostgresOrderContext>(options => options.UseNpgsql(connectionString), ServiceLifetime.Singleton);
