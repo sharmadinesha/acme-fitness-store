@@ -151,6 +151,10 @@ For example:
 ytt -f workloads.yaml -v workloadNamespace=workloads -v appSSOIssuerURI=https://appsso-acme-fitness.workloads.perfect300rock.com  -v appDomainName=perfect300rock.com -v sourceRepo=https://github.com/gm2552-commercial/acme-fitness-store -v sourceRepoBranch=Azure  | kubectl apply -f-
 ```
 
+### Spring Cloud Gateway Setup
+
+TBC
+
 
 ### Spring Cloud Gateway Deployment
 
