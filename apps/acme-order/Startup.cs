@@ -9,6 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Logging;
 using System;
 using System.IO;
 using Microsoft.EntityFrameworkCore;
@@ -19,9 +20,12 @@ namespace acme_order
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        private readonly ILogger<Startup> _logger;
+
+        public Startup(IConfiguration configuration, ILogger<Startup> logger)
         {
             Configuration = configuration;
+            _logger = logger;
         }
 
         public IConfiguration Configuration { get; }
@@ -46,11 +50,19 @@ namespace acme_order
             //        break;
             //}
 
+            _logger.LogInformation("Reading PostgreSQL connection values");
+
             var host = ReadFileContent("/bindings/db/host");
             var port = ReadFileContent("/bindings/db/port");
             var database = ReadFileContent("/bindings/db/database");
             var username = ReadFileContent("/bindings/db/username");
             var password = ReadFileContent("/bindings/db/password");
+
+            _logger.LogInformation("Host: {Host}", host);
+            _logger.LogInformation("Port: {Port}", port);
+            _logger.LogInformation("Database: {Database}", database);
+            _logger.LogInformation("Username: {Username}", username);
+            _logger.LogInformation("Password: {Password}", password == null ? "null" : "******");            
 
             if (string.IsNullOrWhiteSpace(host) || string.IsNullOrWhiteSpace(port) ||
                 string.IsNullOrWhiteSpace(database) || string.IsNullOrWhiteSpace(username) ||
@@ -60,6 +72,8 @@ namespace acme_order
             }
 
             var connectionString = $"Host={host};Port={port};Database={database};Username={username};Password={password}";
+            _logger.LogInformation("PostgreSQL connection string: {ConnectionString}", connectionString);
+
 
             services.AddDbContext<OrderContext, PostgresOrderContext>(options => options.UseNpgsql(connectionString), ServiceLifetime.Singleton);
 
