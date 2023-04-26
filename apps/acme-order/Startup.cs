@@ -30,16 +30,26 @@ namespace acme_order
             services.AddSingleton<IAcmeServiceSettings>(sp =>
                 sp.GetRequiredService<IOptions<AcmeServiceSettings>>().Value);
 
-            switch (Configuration["DatabaseProvider"])
-            {
-                case "Sqlite":
-                    services.AddDbContext<OrderContext, SqliteOrderContext>(ServiceLifetime.Singleton);
-                    break;
+            //switch (Configuration["DatabaseProvider"])
+            //{
+            //    case "Sqlite":
+            //        services.AddDbContext<OrderContext, SqliteOrderContext>(ServiceLifetime.Singleton);
+            //        break;
+            //    
+            //    case "Postgres":
+            //        services.AddDbContext<OrderContext, PostgresOrderContext>(ServiceLifetime.Singleton);
+            //        break;
+            //}
 
-                case "Postgres":
-                    services.AddDbContext<OrderContext, PostgresOrderContext>(ServiceLifetime.Singleton);
-                    break;
-            }
+            var host = ReadFileContent("/bindings/db/host");
+            var port = ReadFileContent("/bindings/db/port");
+            var database = ReadFileContent("/bindings/db/database");
+            var username = ReadFileContent("/bindings/db/username");
+            var password = ReadFileContent("/bindings/db/password");
+
+            var connectionString = $"Host={host};Port={port};Database={database};Username={username};Password={password}";
+
+            services.AddDbContext<OrderContext>(options => options.UseNpgsql(connectionString));
 
             services.AddSingleton<OrderService>();
             services.AddControllers();
@@ -60,6 +70,16 @@ namespace acme_order
             app.UseHttpsRedirection();
             app.UseRouting();
             app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
+        }
+
+        private string ReadFileContent(string filePath)
+        {
+            if (File.Exists(filePath))
+            {
+                return File.ReadAllText(filePath);
+            }
+
+            return null;
         }
     }
 }
