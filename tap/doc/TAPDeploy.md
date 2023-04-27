@@ -173,6 +173,49 @@ ytt -f scgInstance.yaml -v workloadNamespace=workloads | kubectl apply -f-
 ytt -f scgRoutes.yaml -v workloadNamespace=workloads | kubectl apply -f-
 ```
 
+### PostgreSQL Deployment
+
+The acme-order microservice needs to have a PostgreSQL database deployed.  To deploy the database, the new feature of Tanzu Application Platform based on Crossplane can be used.
+
+To verify if there is a list of services available, run the following command:
+
+```
+tanzu services classes list
+
+```
+
+The command should return the list of services available, including the postgres-unmanaged class, that can be used to provide a PostgreSQL database.
+
+More information about the postgres-unmanaged class of service can be obtained by running the following command:
+
+```
+tanzu services classes get postgresql-unmanaged
+```
+  
+To claim it, run this command:
+```
+tanzu service class-claim create postgres-acmeshopping --class postgresql-unmanaged --parameter storageGB=1
+```
+
+To get the details of the claimed service, run this command:
+```
+tanzu services class-claims get postgres-acmeshopping
+```
+
+The command output will show the status of the claimed resource. There should be a secret of type connection.crossplane.io/v1alpha1 with all the details of the database connection. 
+
+The acme-order workload is ready to bind the claimed service:
+```
+...
+serviceClaims:
+  - name: db
+    ref:
+      apiVersion: services.apps.tanzu.vmware.com/v1alpha1
+      kind: ClassClaim
+      name: postgres-acmeshopping
+...
+```
+
 
 ### Workload Build And Deployment
 
