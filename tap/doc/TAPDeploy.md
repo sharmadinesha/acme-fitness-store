@@ -27,7 +27,7 @@ DNS registrar and create an appropriate DNA entry for the hostname of the applic
 in this case would be:
 
 ```
-acme-fitness.<your domain name>
+acme-fitness.tap-ingress.us-central-007.mcloud.elabs.svcs.entsvcs.com
 ```
 
 Make a note of this URL as you will need it through various steps of the following doc.
